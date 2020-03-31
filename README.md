@@ -16,10 +16,10 @@ Under the GPLv3. See LICENSE.
 Single file:
 
 ```
-python3 plot_regions -o output $FG_DATA/Materials/regions/europe.xml
+python3 plot_regions -o output $FG_DATA/Materials/regions/indonesia.xml
 ```
 
-![Europe](output/europe.png)
+![Indonesia](https://raw.githubusercontent.com/Juanvvc/plot_regions/master/output/indonesia.xml.png)
 
 All regions, multiple files:
 
@@ -27,7 +27,7 @@ All regions, multiple files:
 python3 plot_regions --single $FG_DATA/Materials/regions
 ```
 
-Results: <>
+Results: <https://github.com/Juanvvc/plot_regions/tree/master/output>
 
 All regions, single file:
 
@@ -35,7 +35,7 @@ All regions, single file:
 python3 plot_regions --single $FG_DATA/Materials/regions
 ```
 
-![Europe](output/regions.png)
+![All regions](https://raw.githubusercontent.com/Juanvvc/plot_regions/master/regions.png)
 
 # World map Shape
 
