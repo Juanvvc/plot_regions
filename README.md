@@ -13,9 +13,29 @@ Under the GPLv3. See LICENSE.
 
 # Usage
 
+Single file:
+
 ```
-python3 plot_regions -o output $FG_DATA/Materials/regions
+python3 plot_regions -o output $FG_DATA/Materials/regions/europe.xml
 ```
+
+![Europe](output/europe.png)
+
+All regions, multiple files:
+
+```
+python3 plot_regions --single $FG_DATA/Materials/regions
+```
+
+Results: <>
+
+All regions, single file:
+
+```
+python3 plot_regions --single $FG_DATA/Materials/regions
+```
+
+![Europe](output/regions.png)
 
 # World map Shape
 

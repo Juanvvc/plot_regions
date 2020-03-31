@@ -136,7 +136,7 @@ def plot_regions_in_dir(directory, ax, alpha=0.5):
 
 
 def region_to_png(filename, outdir='.', figsize=None, facecolor=None, alpha=0.5, worldcolor=None, worldshape=None):
-    """ Converts an XML region file into a PNG file """
+    """ Plots an XML region file into a PNG file """
     try:
         os.makedirs(outdir, exist_ok=True)
         outfile = os.path.join(outdir, '{}.png'.format(os.path.basename(filename)))
@@ -150,12 +150,27 @@ def region_to_png(filename, outdir='.', figsize=None, facecolor=None, alpha=0.5,
         logging.warning('Cannot process %s: %s', filename, exc)
 
 
-def directory_to_png(directory, outdir='.', figsize=None, facecolor=None, alpha=0.5, worldcolor=None, worldshape=None):
-    """ Converts all XML regions in a directory into PNG files """
+def allfiles_to_png(directory, outdir='.', figsize=None, facecolor=None, alpha=0.5, worldcolor=None, worldshape=None):
+    """ Plots all XML regions in a directory into PNG files """
     for filename in os.listdir(directory):
         if filename == 'materials.xml' or filename.endswith('png'):
             continue
         region_to_png(os.path.join(directory, filename), outdir=outdir, figsize=figsize, facecolor=facecolor, alpha=0.5, worldcolor=worldcolor, worldshape=worldshape)
+
+
+def directory_to_png(directory, outdir='.', figsize=None, alpha=0.5, worldcolor=None, worldshape=None):
+    """ Plots all XML regions in a directory into a single PNG file """
+    try:
+        os.makedirs(outdir, exist_ok=True)
+        outfile = os.path.join(outdir, '{}.png'.format(os.path.basename(directory)))
+        logging.info('Converting %s into %s', directory, outfile)
+        fig, ax = plot_world_shape(worldshape=worldshape, figsize=figsize, worldcolor=worldcolor)
+        ax.set_title('Available regions'.format(directory))
+        plot_regions_in_dir(directory, ax, alpha=alpha)
+        fig.savefig(outfile, bbox_inches='tight')
+        plt.close(fig)
+    except Exception as exc:
+        logging.warning('Cannot process %s: %s', filename, exc)
 
 
 if __name__ == '__main__':
@@ -169,6 +184,7 @@ if __name__ == '__main__':
     parser.add_argument('-w', '--worldcolor', help='The color of the world shape', default='silver')
     parser.add_argument('-f', '--facecolor', help='The color of the region shape', default='b')
     parser.add_argument('-a', '--alpha', type=float, help='The alpha value of the region shape', default=0.5)
+    parser.add_argument('--single', action='store_true', help='Save all files a single PNG file', default=False)
     parser.add_argument('--height', type=float, help='The height of the figure, in inches (DPI=100)', default=9)
     parser.add_argument('--width', type=float, help='The width of the figure, in inches (DPI=100)', default=12)
     parser.add_argument('input', help='The input XML file or directory containing XML files')
@@ -183,10 +199,16 @@ if __name__ == '__main__':
         sys.exit(1)
 
     if os.path.isdir(args.input):
-        directory_to_png(args.input,
-            outdir=args.output, figsize=[args.width, args.height],
-            facecolor=args.facecolor, alpha=args.alpha,
-            worldcolor=args.worldcolor, worldshape=args.worldshape)
+        if args.single:
+            directory_to_png(args.input,
+                outdir=args.output, figsize=[args.width, args.height],
+                alpha=args.alpha,
+                worldcolor=args.worldcolor, worldshape=args.worldshape)
+        else:
+            allfiles_to_png(args.input,
+                outdir=args.output, figsize=[args.width, args.height],
+                facecolor=args.facecolor, alpha=args.alpha,
+                worldcolor=args.worldcolor, worldshape=args.worldshape)
     else:
         region_to_png(args.input,
             outdir=args.output, figsize=[args.width, args.height],
