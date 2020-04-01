@@ -14,4 +14,4 @@ cat materials.txt | while read MATERIAL; do
 done
 
 python3 plot_regions.py -v --legend --single -o examples "$REGIONS_DIR"
-python3 plot_regions.py --single -a 1 --legend --material IrrCrop --output materials --edgecolor gray --boundaries '[-30, 45, 30, 70]' $FG_ROOT/Materials/regions
+python3 plot_regions.py --single -a 1 --legend --material IrrCrop --output examples --edgecolor gray --worldcolor black --boundaries '[-30, 45, 30, 70]' $FG_ROOT/Materials/regions

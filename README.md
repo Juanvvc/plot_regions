@@ -89,7 +89,9 @@ python3 plot_regions.py --single $FG_ROOT/Materials/regions
 All regions, single file, with legend, output to `examples/regions.png`:
 
 ```
-python3 plot_regions.py --legend --output examples --single $FG_ROOT/Materials/regions
+python3 plot_regions.py \
+    --single --legend --output examples \
+    $FG_ROOT/Materials/regions
 ```
 
 ![All regions, legend](https://raw.githubusercontent.com/Juanvvc/plot_regions/master/examples/regions.png)
@@ -97,16 +99,23 @@ python3 plot_regions.py --legend --output examples --single $FG_ROOT/Materials/r
 All regions defining IrrCrop, output to `materials/IrrCrop.png`, with legend:
 
 ```
-python3 plot_regions.py --single --legend --material IrrCrop --output materials -a 1 --edgecolor gray $FG_ROOT/Materials/regions
+python3 plot_regions.py \
+    --single --legend --material IrrCrop --output materials \
+    --edgecolor gray -a 1 \
+    $FG_ROOT/Materials/regions
 ```
 
 ![IrrCrop](https://raw.githubusercontent.com/Juanvvc/plot_regions/master/materials/IrrCrop.png)
 
 
-All regions defining IrrCrop, output to './IrrCrop.png', order as priorities:
+All regions defining IrrCrop, output to './IrrCrop.png', focused on Europe:
 
 ```
-python3 plot_regions.py --single --legend --material IrrCrop --output materials -a 1 --edgecolor gray --boundaries '[-30, 45, 30, 70]' $FG_ROOT/Materials/regions
+python3 plot_regions.py \
+    --single --legend --material IrrCrop --output examples \
+    --edgecolor gray -a 1 --worldcolor black \
+    --boundaries '[-30, 45, 30, 70]' \
+    $FG_ROOT/Materials/regions
 ```
 
 ![IrrCrop Europe](https://raw.githubusercontent.com/Juanvvc/plot_regions/master/examples/IrrCrop.png)
