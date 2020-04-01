@@ -68,7 +68,7 @@ Single file, output to `regions/indonesia.xml.png`:
 python3 plot_regions.py -o regions $FG_ROOT/Materials/regions/indonesia.xml
 ```
 
-![Indonesia](https://raw.githubusercontent.com/Juanvvc/plot_regions/master/output/indonesia.xml.png)
+![Indonesia](https://raw.githubusercontent.com/Juanvvc/plot_regions/master/regions/indonesia.xml.png)
 
 All regions, multiple files, output to directory `regions`:
 
