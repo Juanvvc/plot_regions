@@ -15,6 +15,7 @@
 import os
 import os.path
 import logging
+import random
 import matplotlib.pyplot as plt
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import Rectangle
@@ -23,11 +24,51 @@ import geopandas as gpd
 
 # BBox = (-30, 45, 15, 60)  #< Europe
 
+MATERIALS_FILE = 'materials.xml'   #< file including all available materials
+
+
+def list_files(materials_file, material=None):
+    """ Read MATERIALS_FILE and list include files.
+    Optionaly, only files including a specific material are included.
+    This function assumes that all region files are in the same directory that MATERIALS_FILE,
+    and they only the filename is returned.    
+    
+    Attrs:
+        materials_file: path to the MATERIALS_FILE file.
+    
+    Return:
+        The available files, in reverse priority order (to proccess the higher priority last)
+    """
+    logging.info('Reading availablel regions from "%s"', materials_file)
+    tree = ET.parse(materials_file)
+    root = tree.getroot()
+    parent_directory = os.path.dirname(materials_file)
+    files = []
+    for region in root.findall('region'):
+        region_path = region.attrib.get('include', None)
+        if region_path is None:
+            continue
+        region_filename = os.path.basename(region_path)
+        region_assumed_path = os.path.join(parent_directory, region_filename)
+        if file_contains_material(region_assumed_path, material):
+            files.append(region_filename)
+    files.reverse()
+    return files
+
+
+def file_contains_material(filename, material=None):
+    """ Returns True if the file contains the specific material.
+    If material is None, returns True. """
+    if material is None:
+        return True
+    return True
+
+
 def load_subregions(region_file):
     """ Loads subregions in an XML file.
 
     Attrs:
-        region_file: Path the the XML file to load.
+        region_file: Path the XML file to load.
 
     Returns:
         An array, each item is an array [lon1, lon2, lat1, lat2]
@@ -105,10 +146,20 @@ def plot_subregions_in_file(filename, ax, facecolor=None, alpha=0.5):
     return plot_subregions(subregions, ax, facecolor=facecolor, alpha=alpha)
 
 
+def random_colors(number):
+    """ Returns a list of random colors for matplotlib """
+    cmap = plt.cm.get_cmap('hsv', number)
+    colors = []
+    for c in range(0, number):
+        colors.append(cmap(c))
+    random.shuffle(colors)
+    return colors
+
+
 def plot_regions_in_dir(directory, ax, alpha=0.5):
     """ Loads all xml files in a directory al plots them
     This method uses plot_sibregions_in_file()
-    Each region will have a differente random color
+    Each region will have a different random color
 
     Attrs:
         directory: load regions from this directory
@@ -118,15 +169,13 @@ def plot_regions_in_dir(directory, ax, alpha=0.5):
     Returns:
         A set (patches, legends)
     """
-    available_files = os.listdir(directory)
-    cmap = plt.cm.get_cmap('hsv', len(available_files))
+    available_files = list_files(os.path.join(directory, MATERIALS_FILE))
     patches = []
     legends = []
+    colors = random_colors(len(available_files))
     for i, filename in enumerate(available_files):
-        if filename == 'materials.xml':
-            continue
         try:
-            first_patch = plot_subregions_in_file(os.path.join(directory, filename), ax, facecolor=cmap(i), alpha=alpha)
+            first_patch = plot_subregions_in_file(os.path.join(directory, filename), ax, facecolor=colors[i], alpha=alpha)
             if first_patch is not None:
                 patches.append(first_patch)
                 legends.append(filename)
@@ -152,9 +201,7 @@ def region_to_png(filename, outdir='.', figsize=None, facecolor=None, alpha=0.5,
 
 def allfiles_to_png(directory, outdir='.', figsize=None, facecolor=None, alpha=0.5, worldcolor=None, worldshape=None):
     """ Plots all XML regions in a directory into PNG files """
-    for filename in os.listdir(directory):
-        if filename == 'materials.xml' or filename.endswith('png'):
-            continue
+    for filename in list_files(os.path.join(directory, MATERIALS_FILE)):
         region_to_png(os.path.join(directory, filename), outdir=outdir, figsize=figsize, facecolor=facecolor, alpha=0.5, worldcolor=worldcolor, worldshape=worldshape)
 
 
@@ -170,7 +217,7 @@ def directory_to_png(directory, outdir='.', figsize=None, alpha=0.5, worldcolor=
         fig.savefig(outfile, bbox_inches='tight')
         plt.close(fig)
     except Exception as exc:
-        logging.warning('Cannot process %s: %s', filename, exc)
+        logging.warning('Cannot process %s: %s', directory, exc)
 
 
 if __name__ == '__main__':
