@@ -86,7 +86,7 @@ python3 plot_regions.py --single $FG_ROOT/Materials/regions
 
 ![All regions](https://raw.githubusercontent.com/Juanvvc/plot_regions/master/regions.png)
 
-All regions, single file, with legend, output to `regions.png`:
+All regions, single file, with legend, output to `examples/regions.png`:
 
 ```
 python3 plot_regions.py --legend --output examples --single $FG_ROOT/Materials/regions
