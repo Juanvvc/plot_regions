@@ -1,8 +1,8 @@
 # plot_regions
 
-This is a utility tool for scenery creators of FlightGear.
+This is a tool for regional scenery creators of FlightGear.
 
-This tool parses and plot the regional terrains in `FGDATA/Materials/regions`
+*plot_regions* parses XML files and plots the areas declared in these files on a world map. The intended input is "XML files in directory `$FG_ROOT/Materials/regions`".
 
 Under the GPLv3. See LICENSE.
 
@@ -16,7 +16,7 @@ Under the GPLv3. See LICENSE.
 Single file, output to `output/indonesia.xml.png`:
 
 ```
-python3 plot_regions.py -o output $FG_DATA/Materials/regions/indonesia.xml
+python3 plot_regions.py -o output $FG_ROOT/Materials/regions/indonesia.xml
 ```
 
 ![Indonesia](https://raw.githubusercontent.com/Juanvvc/plot_regions/master/output/indonesia.xml.png)
@@ -24,7 +24,7 @@ python3 plot_regions.py -o output $FG_DATA/Materials/regions/indonesia.xml
 All regions, multiple files, output to directory `output`:
 
 ```
-python3 plot_regions.py -o output $FG_DATA/Materials/regions
+python3 plot_regions.py -o output $FG_ROOT/Materials/regions
 ```
 
 Results: <https://github.com/Juanvvc/plot_regions/tree/master/output>
@@ -32,7 +32,7 @@ Results: <https://github.com/Juanvvc/plot_regions/tree/master/output>
 All regions, single file, output to `regions.png`:
 
 ```
-python3 plot_regions.py --single $FG_DATA/Materials/regions
+python3 plot_regions.py --single $FG_ROOT/Materials/regions
 ```
 
 ![All regions](https://raw.githubusercontent.com/Juanvvc/plot_regions/master/regions.png)
