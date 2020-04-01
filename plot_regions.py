@@ -123,11 +123,11 @@ def plot_world_shape(ax, worldshape='world/ne_110m_land.shp', worldcolor='silver
     map_df.plot(ax=ax, facecolor=worldcolor, edgecolor=edgecolor)
 
 
-def plot_subregions(regions, ax, facecolor=None, alpha=0.5):
+def plot_subregions(filename, ax, facecolor=None, alpha=0.5):
     """ Adds an array of regions to a plot
 
     Params:
-        regions: an array of subregions, as returned by load_subregions()
+        filename: load subregions from this file
         ax: the matplotlib.axes.Axes
         facecolor: color of the shape
         alpha: the alpha value of the shape
@@ -135,6 +135,7 @@ def plot_subregions(regions, ax, facecolor=None, alpha=0.5):
     Returns:
         The first Rectangle in the region, if any. Useful for legends
     """
+    subregions = load_subregions(filename)
     rectangles = []
     for region in regions:
         rectangles.append(Rectangle((region[0], region[2]), region[1] - region[0], region[3] - region[2], facecolor=facecolor))
@@ -142,23 +143,6 @@ def plot_subregions(regions, ax, facecolor=None, alpha=0.5):
         ax.add_collection(PatchCollection(rectangles, facecolor=facecolor, alpha=alpha, edgecolor='None'))
         return rectangles[0]
     return
-
-
-def plot_subregions_in_file(filename, ax, facecolor=None, alpha=0.5):
-    """ Loads subregions from a filename and plot them.
-    This method uses load_subregions and plot_subregions()
-
-    Params:
-        filename: load subregions from this file
-        ax: the matplotlib.axes.Axes
-        facecolor: color of the subregions
-        alpha: the alpha value of the subregions
-
-    Returns:
-        The first Rectangle in the region, if any. Useful for legends
-    """
-    subregions = load_subregions(filename)
-    return plot_subregions(subregions, ax, facecolor=facecolor, alpha=alpha)
 
 
 def random_colors(number):
@@ -171,9 +155,9 @@ def random_colors(number):
     return colors
 
 
-def plot_regions_in_dir(directory, ax, alpha=0.5, material=None):
+def plot_regions(directory, ax, alpha=0.5, material=None):
     """ Loads XML files listed in MATERIALS_FILE in a directory and plots them
-    This method uses plot_subregions_in_file()
+    This method uses plot_subregions()
     Each region will have a different random color
 
     Params:
@@ -191,7 +175,7 @@ def plot_regions_in_dir(directory, ax, alpha=0.5, material=None):
     colors = random_colors(len(available_files))
     for i, filename in enumerate(available_files):
         try:
-            first_patch = plot_subregions_in_file(os.path.join(directory, filename), ax, facecolor=colors[i], alpha=alpha)
+            first_patch = plot_subregions(os.path.join(directory, filename), ax, facecolor=colors[i], alpha=alpha)
             if first_patch is not None:
                 patches.append(first_patch)
                 legends.append(filename)
@@ -209,7 +193,8 @@ def region_to_png(filename, outdir='.', figsize=None, facecolor=None, alpha=0.5,
         fig, ax = create_figure(figsize=figsize)
         plot_world_shape(ax, worldshape=worldshape, worldcolor=worldcolor)
         ax.set_title(os.path.basename(filename))
-        if plot_subregions_in_file(filename, ax, facecolor=facecolor, alpha=alpha) is not None:
+        if plot_subregions(filename, ax, facecolor=facecolor, alpha=alpha) is not None:
+            # plot the world edges on top
             plot_world_shape(ax, worldshape=worldshape, worldcolor=(0, 0, 0, 0), edgecolor=worldcolor)
             fig.savefig(outfile, bbox_inches='tight')        
         plt.close(fig)
@@ -235,7 +220,7 @@ def directory_to_single_png(directory, outdir='.', material=None, figsize=None, 
         fig, ax = create_figure(figsize=figsize)
         plot_world_shape(ax, worldshape=worldshape, worldcolor=worldcolor)
         ax.set_title('Available regions'.format(directory))
-        plot_regions_in_dir(directory, ax, alpha=alpha, material=material)
+        plot_regions(directory, ax, alpha=alpha, material=material)
         plot_world_shape(ax, worldshape=worldshape, worldcolor=(0, 0, 0, 0), edgecolor=worldcolor)
         fig.savefig(outfile, bbox_inches='tight')
         plt.close(fig)
