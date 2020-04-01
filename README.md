@@ -13,7 +13,7 @@ Under the GPLv3. See LICENSE.
 
 # Usage
 
-Single file:
+Single file, output to directory `output`:
 
 ```
 python3 plot_regions -o output $FG_DATA/Materials/regions/indonesia.xml
@@ -21,15 +21,15 @@ python3 plot_regions -o output $FG_DATA/Materials/regions/indonesia.xml
 
 ![Indonesia](https://raw.githubusercontent.com/Juanvvc/plot_regions/master/output/indonesia.xml.png)
 
-All regions, multiple files:
+All regions, multiple files, output to directory `$FG_DATA/Materials/regions`:
 
 ```
-python3 plot_regions --single $FG_DATA/Materials/regions
+python3 plot_regions -o $FG_DATA/Materials/regions $FG_DATA/Materials/regions
 ```
 
 Results: <https://github.com/Juanvvc/plot_regions/tree/master/output>
 
-All regions, single file:
+All regions, single file, output to `./regions.png`:
 
 ```
 python3 plot_regions --single $FG_DATA/Materials/regions
