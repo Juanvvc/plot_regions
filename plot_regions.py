@@ -33,7 +33,7 @@ def list_files(materials_file, material=None):
     This function assumes that all region files are in the same directory that MATERIALS_FILE,
     and they only the filename is returned.    
     
-    Attrs:
+    Params:
         materials_file: path to the MATERIALS_FILE file.
     
     Return:
@@ -52,7 +52,6 @@ def list_files(materials_file, material=None):
         region_assumed_path = os.path.join(parent_directory, region_filename)
         if file_contains_material(region_assumed_path, material):
             files.append(region_filename)
-    files.reverse()
     return files
 
 
@@ -61,13 +60,19 @@ def file_contains_material(filename, material=None):
     If material is None, returns True. """
     if material is None:
         return True
-    return True
+    tree = ET.parse(filename)
+    root = tree.getroot()
+    for m in root.findall('material'):
+        for n in m.findall('name'):
+            if n.text == material:
+                return True
+    return False
 
 
 def load_subregions(region_file):
     """ Loads subregions in an XML file.
 
-    Attrs:
+    Params:
         region_file: Path the XML file to load.
 
     Returns:
@@ -86,34 +91,44 @@ def load_subregions(region_file):
     return subregions
 
 
-def plot_world_shape(worldshape='world/ne_110m_land.shp', worldcolor='silver', boundaries=None, figsize=None):
-    """ Creates a plot with the world as a background.
-    This method needs geopandas installed
+def create_figure(boundaries=None, figsize=None):
+    """ Creates a matplotlib figure
 
-    Attrs:
-        worldshape: path to the SHP file to load. Use a low detailed shape file.
-        worldcolor: color of the shape
+    Params:
         boundaries: [min_lon, max_lon, min_lat, max_lat]
         figsize: the figsize param for the figure
 
     Returns:
-        A pair fig, axis
+        A pair (matplotlib.figure.Figure, matplotlib.axes.Axes)
     """
-    map_df = gpd.read_file(worldshape)
     fig, ax = plt.subplots(figsize=figsize)
     if boundaries is not None:
         ax.set_xlim(boundaries[0], boundaries[1])
         ax.set_ylim(boundaries[2], boundaries[3])
-    map_df.plot(ax=ax, facecolor=worldcolor)
+    else:
+        ax.set_xlim(-180, 180)
+        ax.set_ylim(-90, 90)
     return fig, ax
+
+
+def plot_world_shape(ax, worldshape='world/ne_110m_land.shp', worldcolor='silver', edgecolor=None):
+    """ Creates a plot with the world as a background.
+
+    Params:
+        ax: the matplotlib.axes.Axes
+        worldshape: path to the SHP file to load. Use a low detailed shape file.
+        worldcolor: color of the shape
+    """
+    map_df = gpd.read_file(worldshape)
+    map_df.plot(ax=ax, facecolor=worldcolor, edgecolor=edgecolor)
 
 
 def plot_subregions(regions, ax, facecolor=None, alpha=0.5):
     """ Adds an array of regions to a plot
 
-    Attrs:
+    Params:
         regions: an array of subregions, as returned by load_subregions()
-        ax: the axis
+        ax: the matplotlib.axes.Axes
         facecolor: color of the shape
         alpha: the alpha value of the shape
 
@@ -133,9 +148,9 @@ def plot_subregions_in_file(filename, ax, facecolor=None, alpha=0.5):
     """ Loads subregions from a filename and plot them.
     This method uses load_subregions and plot_subregions()
 
-    Attrs:
+    Params:
         filename: load subregions from this file
-        ax: the axis
+        ax: the matplotlib.axes.Axes
         facecolor: color of the subregions
         alpha: the alpha value of the subregions
 
@@ -156,20 +171,21 @@ def random_colors(number):
     return colors
 
 
-def plot_regions_in_dir(directory, ax, alpha=0.5):
-    """ Loads all xml files in a directory al plots them
-    This method uses plot_sibregions_in_file()
+def plot_regions_in_dir(directory, ax, alpha=0.5, material=None):
+    """ Loads XML files listed in MATERIALS_FILE in a directory and plots them
+    This method uses plot_subregions_in_file()
     Each region will have a different random color
 
-    Attrs:
+    Params:
         directory: load regions from this directory
-        ax: the axis
+        ax: the matplotlib.axes.Axes
         alpha: the alpha value of the subregions
+        material: if not None, list only files which define this material
 
     Returns:
         A set (patches, legends)
     """
-    available_files = list_files(os.path.join(directory, MATERIALS_FILE))
+    available_files = list_files(os.path.join(directory, MATERIALS_FILE), material=material)
     patches = []
     legends = []
     colors = random_colors(len(available_files))
@@ -190,30 +206,37 @@ def region_to_png(filename, outdir='.', figsize=None, facecolor=None, alpha=0.5,
         os.makedirs(outdir, exist_ok=True)
         outfile = os.path.join(outdir, '{}.png'.format(os.path.basename(filename)))
         logging.info('Converting %s into %s', filename, outfile)
-        fig, ax = plot_world_shape(worldshape=worldshape, figsize=figsize, worldcolor=worldcolor)
+        fig, ax = create_figure(figsize=figsize)
+        plot_world_shape(ax, worldshape=worldshape, worldcolor=worldcolor)
         ax.set_title(os.path.basename(filename))
         if plot_subregions_in_file(filename, ax, facecolor=facecolor, alpha=alpha) is not None:
-            fig.savefig(outfile, bbox_inches='tight')
+            plot_world_shape(ax, worldshape=worldshape, worldcolor=(0, 0, 0, 0), edgecolor=worldcolor)
+            fig.savefig(outfile, bbox_inches='tight')        
         plt.close(fig)
     except Exception as exc:
         logging.warning('Cannot process %s: %s', filename, exc)
 
 
-def allfiles_to_png(directory, outdir='.', figsize=None, facecolor=None, alpha=0.5, worldcolor=None, worldshape=None):
+def directory_to_png(directory, outdir='.', figsize=None, facecolor=None, alpha=0.5, worldcolor=None, worldshape=None):
     """ Plots all XML regions in a directory into PNG files """
     for filename in list_files(os.path.join(directory, MATERIALS_FILE)):
         region_to_png(os.path.join(directory, filename), outdir=outdir, figsize=figsize, facecolor=facecolor, alpha=0.5, worldcolor=worldcolor, worldshape=worldshape)
 
 
-def directory_to_png(directory, outdir='.', figsize=None, alpha=0.5, worldcolor=None, worldshape=None):
+def directory_to_single_png(directory, outdir='.', material=None, figsize=None, alpha=0.5, worldcolor=None, worldshape=None):
     """ Plots all XML regions in a directory into a single PNG file """
     try:
         os.makedirs(outdir, exist_ok=True)
-        outfile = os.path.join(outdir, '{}.png'.format(os.path.basename(directory)))
+        if material is not None:
+            outfile = os.path.join(outdir, '{}.png'.format(material))
+        else:
+            outfile = os.path.join(outdir, '{}.png'.format(os.path.basename(directory)))
         logging.info('Converting %s into %s', directory, outfile)
-        fig, ax = plot_world_shape(worldshape=worldshape, figsize=figsize, worldcolor=worldcolor)
+        fig, ax = create_figure(figsize=figsize)
+        plot_world_shape(ax, worldshape=worldshape, worldcolor=worldcolor)
         ax.set_title('Available regions'.format(directory))
-        plot_regions_in_dir(directory, ax, alpha=alpha)
+        plot_regions_in_dir(directory, ax, alpha=alpha, material=material)
+        plot_world_shape(ax, worldshape=worldshape, worldcolor=(0, 0, 0, 0), edgecolor=worldcolor)
         fig.savefig(outfile, bbox_inches='tight')
         plt.close(fig)
     except Exception as exc:
@@ -231,7 +254,8 @@ if __name__ == '__main__':
     parser.add_argument('-w', '--worldcolor', help='The color of the world shape', default='silver')
     parser.add_argument('-f', '--facecolor', help='The color of the region shape', default='b')
     parser.add_argument('-a', '--alpha', type=float, help='The alpha value of the region shape', default=0.5)
-    parser.add_argument('--single', action='store_true', help='Save all files a single PNG file', default=False)
+    parser.add_argument('--single', action='store_true', help='Save all files a single PNG file. Ignored if input is not a directory.', default=False)
+    parser.add_argument('--material', help='If single mode, proccess only files containing this material', default=None)
     parser.add_argument('--height', type=float, help='The height of the figure, in inches (DPI=100)', default=9)
     parser.add_argument('--width', type=float, help='The width of the figure, in inches (DPI=100)', default=12)
     parser.add_argument('input', help='The input XML file or directory containing XML files')
@@ -247,12 +271,13 @@ if __name__ == '__main__':
 
     if os.path.isdir(args.input):
         if args.single:
-            directory_to_png(args.input,
+            directory_to_single_png(args.input,
                 outdir=args.output, figsize=[args.width, args.height],
+                material=args.material,
                 alpha=args.alpha,
                 worldcolor=args.worldcolor, worldshape=args.worldshape)
         else:
-            allfiles_to_png(args.input,
+            directory_to_png(args.input,
                 outdir=args.output, figsize=[args.width, args.height],
                 facecolor=args.facecolor, alpha=args.alpha,
                 worldcolor=args.worldcolor, worldshape=args.worldshape)
