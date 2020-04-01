@@ -11,6 +11,13 @@ Under the GPLv3. See LICENSE.
 - matplotlib
 - geopandas
 
+On Debian/Ubuntu, they can be installed from the repositories or pip. Run any of these commads:
+
+```
+> apt-get install python3-matplotlib python3-geopandas
+> pip3 install --user matplotlib geopandas
+```
+
 # Examples
 
 Single file, output to `output/indonesia.xml.png`:
