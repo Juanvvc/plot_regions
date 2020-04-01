@@ -11,7 +11,7 @@ Under the GPLv3. See LICENSE.
 - matplotlib
 - geopandas
 
-# Usage
+# Examples
 
 Single file, output to `output/indonesia.xml.png`:
 
@@ -39,7 +39,9 @@ python3 plot_regions.py --single $FG_ROOT/Materials/regions
 
 # World map Shape
 
-Made with Natural Earth. Free vector and raster map data @ naturalearthdata.com.
+The default world map shape was made with Natural Earth. Free vector and raster map
+data @ naturalearthdata.com.
+
 <https://www.naturalearthdata.com/downloads/110m-physical-vectors/>
 
 All versions of Natural Earth raster + vector map data found on this website
