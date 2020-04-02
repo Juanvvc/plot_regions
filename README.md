@@ -6,6 +6,11 @@ This is a tool for regional scenery creators of FlightGear.
 
 Under the GPLv3. See LICENSE.
 
+Direct link to results:
+
+- Regions: <https://github.com/Juanvvc/plot_regions/tree/master/regions>
+- Materials: <https://github.com/Juanvvc/plot_regions/tree/master/materials>
+
 # Dependencies
 
 - matplotlib
@@ -47,11 +52,11 @@ optional arguments:
                         The color of the region shape
   -a ALPHA, --alpha ALPHA
                         The alpha value of the region shape
-  --single              Save all files a single PNG file. Ignored if input is
-                        not a directory.
-  --material MATERIAL   If single mode, proccess only files containing this
+  --single              Single mode: save all files a single PNG file.
+                        Ignored if input is not a directory.
+  --material MATERIAL   In single mode, proccess only files containing this
                         material
-  --legend              If single mode, show legend
+  --legend              In single mode, show legend
   --edgecolor EDGECOLOR
                         The color of the edges of the subregion
   --height HEIGHT       The height of the figure, in inches (DPI=100)
